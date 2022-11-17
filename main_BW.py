@@ -41,15 +41,15 @@ def persp2barrel(k,img):
     
     return img_dist
 
-for i in range(1,6):
+for i in range(1,26):
     k = random.randint(1,100)/100*-0.2
     k = np.float32(k)
-    img = iio.imread('Raw Images/' + str(i) + '.jpg')
+    img = iio.imread('Raw Images BW/' + str(i) + '.jpg')
     img_dist = persp2barrel(k,img)
-    iio.imwrite('Training Set/'+str(i)+'_'+'k-0p'+str(k).split('.')[1]+'.jpg',img_dist)
+    iio.imwrite('Training Set BW/'+str(i)+'_'+'k-0p'+str(k).split('.')[1]+'.jpg',img_dist)
     
-for i in range(6,11):
+for i in range(26,51):
     k = 0
-    img = iio.imread('Raw Images/' + str(i) + '.jpg')
+    img = iio.imread('Raw Images BW/' + str(i) + '.jpg')
     img_dist = persp2barrel(k,img)
     iio.imwrite('Training Set BW/'+str(i)+'_perfPersp.jpg',img_dist)
