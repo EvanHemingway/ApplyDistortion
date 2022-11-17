@@ -6,7 +6,7 @@ def findInverse(k):
     r_distorted = r*(1 + k * r**2)
     
     x0 = np.zeros(5).ravel()
-    res = least_squares(fun, x0,  verbose=2, ftol=1e-12,loss='linear', args=([r_distorted]))
+    res = least_squares(fun, x0,  verbose=0, ftol=1e-12,loss='linear', args=([r_distorted]))
 
     return res.x
 
