@@ -1,0 +1,17 @@
+# FROM ubuntu
+FROM jupyter/tensorflow-notebook:latest
+
+USER root
+RUN apt update && apt install -y gparted # wkhtmltopdf
+
+USER jovyan
+#RUN pip3 install --upgrade cvxopt fastapi geopy imgkit matplotlib numba numpy 'OpenDSSDirect.py' pandas pandapower plotly pyproj pyyaml uvicorn[standard]
+
+RUN pip3 install --upgrade fastapi
+
+RUN pip3 install --upgrade matplotlib
+
+RUN pip3 install --upgrade pandas
+
+RUN pip3 install --upgrade plotly
+
