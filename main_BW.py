@@ -15,7 +15,7 @@ import numpy as np
 def persp2barrel(k,img):
     undist = findInv(k)
     c = 0
-    img_dist = np.array([0]*640*480*3).reshape(480,640,3).astype(np.uint8)
+    img_dist = np.array([0]*640*480*1).reshape(480,640,1).astype(np.uint8)
     for x_orig in range(-320,320):
         x_orig = x_orig + 0.5
         r = 0
@@ -30,26 +30,28 @@ def persp2barrel(k,img):
             x_new = x_orig*scale
             y_new = y_orig*scale
             
-            interp_up = img[ceil(y_new)+480,floor(x_new)+640,:]*(ceil(x_new)-x_new)+img[ceil(y_new)+480,ceil(x_new)+640,:]*(x_new-floor(x_new))
-            interp_low = img[floor(y_new)+480,floor(x_new)+640,:]*(ceil(x_new)-x_new)+img[floor(y_new)+480,ceil(x_new)+640,:]*(x_new-floor(x_new))
+            interp_up = img[ceil(y_new)+480,floor(x_new)+640]*(ceil(x_new)-x_new)+img[ceil(y_new)+480,ceil(x_new)+640]*(x_new-floor(x_new))
+            interp_low = img[floor(y_new)+480,floor(x_new)+640]*(ceil(x_new)-x_new)+img[floor(y_new)+480,ceil(x_new)+640]*(x_new-floor(x_new))
       
             interp = (ceil(y_new)-y_new)*interp_low + (y_new-floor(y_new))*interp_up
-            interp_int = [int(interp[0]), int(interp[1]), int(interp[2])]
+            interp_int = int(interp)
             img_dist[r,c] = interp_int 
             r = r + 1
         c = c + 1
     
     return img_dist
 
-for i in range(1,26):
+for i in range(1,501):
     k = random.randint(1,100)/100*-0.2
     k = np.float32(k)
-    img = iio.imread('Raw Images BW/' + str(i) + '.jpg')
+    str_pad = str(i).zfill(4)
+    img = iio.imread('Raw Images BW 1000/' + str_pad + '.jpg')
     img_dist = persp2barrel(k,img)
-    iio.imwrite('Training Set BW/'+str(i)+'_'+'k-0p'+str(k).split('.')[1]+'.jpg',img_dist)
+    iio.imwrite('Training Set BW 1000/'+str_pad+'_'+str(k).split('.')[1]+'.jpg',img_dist)
     
-for i in range(26,51):
+for i in range(501,1002):
     k = 0
-    img = iio.imread('Raw Images BW/' + str(i) + '.jpg')
+    str_pad = str(i).zfill(4)
+    img = iio.imread('Raw Images BW 1000/' + str_pad + '.jpg')
     img_dist = persp2barrel(k,img)
-    iio.imwrite('Training Set BW/'+str(i)+'_perfPersp.jpg',img_dist)
+    iio.imwrite('Training Set BW 1000/'+str_pad+'_perfPersp.jpg',img_dist)
