@@ -102,8 +102,12 @@ def load_distortion_data(dir_path, image_width, image_height):
     # dist_labels.shape
 
     # dist_values.shape
-
     
+    dist_data = {}
+    dist_data["dist_images"] = dist_images
+    dist_data["dist_labels"] = dist_labels
+    dist_data["dist_values"] = dist_values
+    dist_data["dist_filenames"] = dist_filenames
     
     return dist_images, dist_labels, dist_values, dist_filenames
 
