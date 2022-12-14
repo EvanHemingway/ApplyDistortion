@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 
 # Load images into arrays and create labels
-def load_distortion_data(dir_path, image_width, image_height):
+def load_distortion_data(dir_path, image_width, image_height, num_undist=0):
 
     
     
@@ -43,7 +43,6 @@ def load_distortion_data(dir_path, image_width, image_height):
     
 
     remove_idx = [] # list of indexes to remove
-
 
     # iterate over files in directory
     for kf, filename1 in enumerate(os.listdir(dir_path)):
@@ -118,7 +117,100 @@ def load_distortion_data(dir_path, image_width, image_height):
     return dist_data
 
 
+#########################
+#########################
+# Remove specified amount of images matching specified label
+def remove_data_by_label(dist_data, rem_label, num_remove=0, seed=42):
+    
+    # dist_images = dist_data["dist_images"]
+    # dist_labels = dist_data["dist_labels"]
+    # dist_values = dist_data["dist_values"]
+    # dist_filenames = dist_data["dist_filenames"]
+    
+    np.random.seed(seed) # set random seed
+    
+    idx = np.where(dist_data["dist_labels"][:,0] == rem_label)[0]
+    print(f"Indices matching label {rem_label}")
+    print(idx)    
 
+    idx = np.random.permutation(idx) # randomized permutation of indices
+    print(f"Permuted indices matching label {rem_label}")
+    print(idx)
+    
+    if num_remove >= 1 and num_remove <= len(idx):
+        rem_idx = idx[0:num_remove]
+        print("Indices to remove")
+        print(rem_idx)
+        
+        dist_data["dist_images"] = np.delete(dist_data["dist_images"], rem_idx, 0)
+        dist_data["dist_labels"] = np.delete(dist_data["dist_labels"], rem_idx, 0)
+        dist_data["dist_values"] = np.delete(dist_data["dist_values"], rem_idx, 0)
+        dist_data["dist_filenames"] = np.delete(dist_data["dist_filenames"], rem_idx)
+        
+    else:
+        print("Error: Trying to remove too many indices")
+
+    print(dist_data["dist_images"].shape)
+    print(dist_data["dist_labels"].shape)
+    print(dist_data["dist_values"].shape)
+    print(dist_data["dist_filenames"].shape)
+
+    return dist_data
+
+
+#########################
+#########################
+def bin_dist_values(dist_data, num_bins=10, min_value=None, max_value=None, min_bin=False):
+    
+    dist_values = dist_data["dist_values"]
+        
+    if min_value == None:
+        min_value = np.min(dist_values)
+    
+    if max_value == None:
+        max_value = np.max(dist_values)
+
+    # calculate bin width
+    bin_width = (max_value - min_value)/num_bins
+    # print(bin_width)
+
+    dist_value_bins = np.zeros((len(dist_values),1), dtype=int)
+    
+    print(f"Number of bins: {num_bins} | Minimum value: {min_value} | Maximum value: {max_value} | Bin Width: {bin_width}")
+
+    for k1 in range(0,num_bins):
+        # print(k1*bin_width)
+        # print((k1+1)*bin_width)
+        idx = np.where((k1*bin_width <= dist_values[:,0]) & (dist_values[:,0] <= (k1 + 1)*bin_width))
+        idx = idx[0]
+        # print(all_distortion_values[idx,0])
+        dist_value_bins[idx,0] = k1
+        
+        print(f"Bin: {k1} | Bin range: [ {k1*bin_width} , {(k1+1)*bin_width} ) | Number of indices: {len(idx)} | Percent of examples: {len(idx)/len(dist_values)*100}")
+
+    # print(dist_values.T)
+    # print(dist_value_bins.T)
+
+    fig1 = plt.figure(figsize=(12,4))
+    plt.plot(dist_values,dist_value_bins,"b.")
+    plt.xlabel("Distortion coefficient value")
+    plt.ylabel("Bin")
+    plt.show()  
+    
+    fig1 = plt.figure(figsize=(12,4))
+    counts, bins = np.histogram(dist_value_bins[:,0])
+    plt.stairs(counts, bins)
+    plt.xlabel("Bin")
+    plt.ylabel("Number in bin")
+    plt.show()    
+    
+    dist_data["dist_value_bins"] = dist_value_bins
+    
+    return dist_data
+
+
+#########################
+#########################
 # def dist_train_test_split(dist_images, dist_labels, dist_values, dist_filenames, split_amount=0.8, seed=42):
 def dist_train_test_split(dist_data, split_amount=0.8, seed=42):
     
@@ -164,7 +256,7 @@ def dist_train_test_split(dist_data, split_amount=0.8, seed=42):
     if "dist_value_bins" in dist_data.keys():
         dist_value_bins = dist_data["dist_value_bins"]
         train_bins = dist_value_bins[idx_train]
-        train_bins = dist_value_bins[idx_test]
+        test_bins = dist_value_bins[idx_test]
 
     # print(train_labels[:,0].T)
 
@@ -197,34 +289,5 @@ def dist_train_test_split(dist_data, split_amount=0.8, seed=42):
     return split_data
 
 
-def bin_dist_values(dist_data, num_bins=10, min_value=None, max_value=None):
-    
-    dist_values = dist_data["dist_values"]
-        
-    if min_value == None:
-        min_value = np.min(dist_values)
-    
-    if max_value == None:
-        max_value = np.max(dist_values)
 
-    # calculate bin width
-    bin_width = (max_value - min_value)/num_bins
-    # print(bin_width)
-
-    dist_value_bins = np.zeros((len(dist_values),1), dtype=int)
-
-    for k1 in range(0,num_bins):
-        # print(k1*bin_width)
-        # print((k1+1)*bin_width)
-        idx = np.where((k1*bin_width <= dist_values[:,0]) & (dist_values[:,0] <= (k1 + 1)*bin_width))
-        # print(idx)
-        # print(all_distortion_values[idx,0])
-        dist_value_bins[idx,0] = k1
-
-    print(dist_values.T)
-    print(dist_value_bins.T)
-
-    fig1 = plt.figure(figsize=(12,12))
-    plt.plot(dist_values,dist_value_bins,"b.")
-    plt.show()
     
