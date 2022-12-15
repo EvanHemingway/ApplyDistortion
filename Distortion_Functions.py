@@ -13,18 +13,15 @@ from PIL import Image
 
 import matplotlib.pyplot as plt
 
-
+#########################
+#########################
 # Load images into arrays and create labels
 def load_distortion_data(dir_path, image_width, image_height, num_undist=0):
 
-    
-    
     dir_path = dir_path # directory path
 
     image_width = image_width # image width
     image_height = image_height # image height
-
-    dir_path = dir_path # directory path
     
 
     N_im = len(fnmatch.filter(os.listdir(dir_path), '*.*')) # number of all images
@@ -130,17 +127,17 @@ def remove_data_by_label(dist_data, rem_label, num_remove=0, seed=42):
     np.random.seed(seed) # set random seed
     
     idx = np.where(dist_data["dist_labels"][:,0] == rem_label)[0]
-    print(f"Indices matching label {rem_label}")
-    print(idx)    
+    # print(f"Indices matching label {rem_label}")
+    # print(idx)
 
     idx = np.random.permutation(idx) # randomized permutation of indices
-    print(f"Permuted indices matching label {rem_label}")
-    print(idx)
+    # print(f"Permuted indices matching label {rem_label}")
+    # print(idx)
     
     if num_remove >= 1 and num_remove <= len(idx):
         rem_idx = idx[0:num_remove]
-        print("Indices to remove")
-        print(rem_idx)
+        # print("Indices to remove")
+        # print(rem_idx)
         
         dist_data["dist_images"] = np.delete(dist_data["dist_images"], rem_idx, 0)
         dist_data["dist_labels"] = np.delete(dist_data["dist_labels"], rem_idx, 0)
@@ -176,17 +173,47 @@ def bin_dist_values(dist_data, num_bins=10, min_value=None, max_value=None, min_
 
     dist_value_bins = np.zeros((len(dist_values),1), dtype=int)
     
-    print(f"Number of bins: {num_bins} | Minimum value: {min_value} | Maximum value: {max_value} | Bin Width: {bin_width}")
+    if min_bin == False:
+        # calculate bin width
+        bin_width = (max_value - min_value)/num_bins
+        # print(bin_width)
+        print(f"Number of bins: {num_bins} | Minimum value: {min_value} | Maximum value: {max_value} | Bin Width: {bin_width}")
 
-    for k1 in range(0,num_bins):
-        # print(k1*bin_width)
-        # print((k1+1)*bin_width)
-        idx = np.where((k1*bin_width <= dist_values[:,0]) & (dist_values[:,0] <= (k1 + 1)*bin_width))
-        idx = idx[0]
-        # print(all_distortion_values[idx,0])
-        dist_value_bins[idx,0] = k1
+        for k1 in range(0,num_bins):            
+            if k1 == num_bins-1:
+                idx = np.where((k1*bin_width <= dist_values[:,0]) & (dist_values[:,0] <= (k1 + 1)*bin_width))
+                idx = idx[0]
+                print(f"Bin: {k1} | Bin range: [ {k1*bin_width} , {(k1+1)*bin_width} ] | Number of indices: {len(idx)} | Percent of examples: {len(idx)/len(dist_values)*100}")
+                dist_value_bins[idx,0] = k1
+            else:
+                idx = np.where((k1*bin_width <= dist_values[:,0]) & (dist_values[:,0] < (k1 + 1)*bin_width))
+                idx = idx[0]
+                print(f"Bin: {k1} | Bin range: [ {k1*bin_width} , {(k1+1)*bin_width} ) | Number of indices: {len(idx)} | Percent of examples: {len(idx)/len(dist_values)*100}")
+                dist_value_bins[idx,0] = k1
+            
+    if min_bin == True:
+        # calculate bin width
+        bin_width = (max_value - min_value)/(num_bins-1)
+        # print(bin_width)
+        print(f"Number of bins including min value bin: {num_bins} | Minimum value: {min_value} | Maximum value: {max_value} | Bin Width: {bin_width}")
         
-        print(f"Bin: {k1} | Bin range: [ {k1*bin_width} , {(k1+1)*bin_width} ) | Number of indices: {len(idx)} | Percent of examples: {len(idx)/len(dist_values)*100}")
+        idx = np.where((dist_values[:,0] == min_value))
+        idx = idx[0]
+        dist_value_bins[idx,0] = 0
+        
+        print(f"Bin: {0} | Bin range: [ {min_value} , {min_value} ] | Number of indices: {len(idx)} | Percent of examples: {len(idx)/len(dist_values)*100}")
+
+        for k1 in range(0,num_bins-1):
+            # print(k1*bin_width)
+            # print((k1+1)*bin_width)
+            idx = np.where((k1*bin_width < dist_values[:,0]) & (dist_values[:,0] <= (k1 + 1)*bin_width))
+            # if k1 == num_bins-1:
+            #     idx = np.where((k1*bin_width <= dist_values[:,0]) & (dist_values[:,0] <= (k1 + 1)*bin_width))
+            idx = idx[0]
+            # print(all_distortion_values[idx,0])
+            dist_value_bins[idx,0] = k1+1
+
+            print(f"Bin: {k1+1} | Bin range: ( {k1*bin_width} , {(k1+1)*bin_width} ] | Number of indices: {len(idx)} | Percent of examples: {len(idx)/len(dist_values)*100}")
 
     # print(dist_values.T)
     # print(dist_value_bins.T)
@@ -195,14 +222,27 @@ def bin_dist_values(dist_data, num_bins=10, min_value=None, max_value=None, min_
     plt.plot(dist_values,dist_value_bins,"b.")
     plt.xlabel("Distortion coefficient value")
     plt.ylabel("Bin")
-    plt.show()  
+    plt.show()
     
     fig1 = plt.figure(figsize=(12,4))
-    counts, bins = np.histogram(dist_value_bins[:,0])
+    counts, bins = np.histogram(dist_values[:,0], num_bins, (min_value, max_value))
+    # print(bins)
+    # print(counts)
     plt.stairs(counts, bins)
+    plt.xlabel("Distortion Coefficient Bin")
+    plt.ylabel("Number in bin")
+    plt.show()
+    
+    fig1 = plt.figure(figsize=(12,4))
+    # counts, bins = np.histogram(dist_value_bins[:,0], num_bins, (0, num_bins))
+    # print(bins)
+    # print(counts)
+    # plt.stairs(counts, bins)
+    for k1 in range(0,np.max(dist_value_bins[:,0])+1):
+        plt.plot(k1, np.sum(dist_value_bins[:,0] == k1), "b.")
     plt.xlabel("Bin")
     plt.ylabel("Number in bin")
-    plt.show()    
+    plt.show()
     
     dist_data["dist_value_bins"] = dist_value_bins
     
@@ -235,9 +275,9 @@ def dist_train_test_split(dist_data, split_amount=0.8, seed=42):
     # print(idx_test)
 
     # split all data and labels into training and test sets
-    train_images = dist_images[idx_train,:,:] # training images
+    train_images = dist_images[idx_train] # training images
 
-    test_images = dist_images[idx_test,:,:] # test images
+    test_images = dist_images[idx_test] # test images
 
     train_labels = dist_labels[idx_train] # training labels
 
@@ -247,11 +287,11 @@ def dist_train_test_split(dist_data, split_amount=0.8, seed=42):
 
     test_values = dist_values[idx_test] # test distortion values
 
-    # train_filenames = [filenames[idx_train[k1]] for k1 in range(0,len(idx_train))]
-    # test_filenames = [filenames[idx_test[k1]] for k1 in range(0,len(idx_test))]
-
     train_filenames = [dist_filenames[idx] for idx in idx_train]
     test_filenames = [dist_filenames[idx] for idx in idx_test]
+    
+    train_filenames = list(np.array(dist_filenames)[idx_train])
+    test_filenames = list(np.array(dist_filenames)[idx_test])
     
     if "dist_value_bins" in dist_data.keys():
         dist_value_bins = dist_data["dist_value_bins"]
