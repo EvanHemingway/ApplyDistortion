@@ -23,25 +23,25 @@ def load_distortion_data(dir_path, image_width, image_height, num_undist=0):
     This function loads data from a local directory and places the data into arrays, which are then placed into a dict
     
     Inputs:
-    dir_path: str
+    dir_path : str
         he directory of the images to be loaded
-    image_width: int
+    image_width : int
         number of pixels of image width - images with widths not matching this value will be rejected
-    image_height: int
+    image_height : int
         number of pixels of image height - images with heights not matching this value will be rejected
-    num_undist: int
-        number of undistorted images to include - the default is to indlude all undistorted images
+    num_undist : int, optional
+        number of undistorted images to include (the default valur of 0 is to indlude all undistorted images)
     
     Outputs:
-    dist_data: dict
+    dist_data : dict
         dict containing several arrays, as outlined below
-    dist_images: numpy float array of dimension N_im x image_width x image_height x 1
+    dist_images : numpy float array of dimension N_im x image_width x image_height x 1
         array with image GS data
-    dist_labels: numpy integer array of dimension N_im x 1
+    dist_labels : numpy integer array of dimension N_im x 1
         array with image labels, with 0 for undistorted and 1 for distored
-    dist_values: numpy float array of dimension N_im x 1
+    dist_values : numpy float array of dimension N_im x 1
         array with image distortion values
-    dist_filenames: list of dimensio N_im
+    dist_filenames : list of dimension N_im
         list of filenames
         
     """
@@ -151,25 +151,25 @@ def remove_data_by_label(dist_data, rem_label, num_remove=0, seed=42):
     This function removes a specified number of data points that have the specified label
     
     Inputs:
-    dist_data: dict
+    dist_data : dict
         dict containing image data, labels, distortion values, and filenames
-    rem_label: int
+    rem_label : int
         data point label to remove
-    num_remove: int
-        number of data points to remove
-    seed: int
-        random seed
+    num_remove : int, optional
+        number of data points to remove (default is 0)
+    seed : int, optional
+        random seed (default is 42)
     
     Outputs:
-    dist_data: dict
+    dist_data : dict
         dict containing several arrays, as outlined below
-    dist_images: numpy float array of dimension N_im x image_width x image_height x 1
+    dist_images : numpy float array of dimension N_im x image_width x image_height x 1
         array with image GS data
-    dist_labels: numpy integer array of dimension N_im x 1
+    dist_labels : numpy integer array of dimension N_im x 1
         array with image labels, with 0 for undistorted and 1 for distored
-    dist_values: numpy float array of dimension N_im x 1
+    dist_values : numpy float array of dimension N_im x 1
         array with image distortion values
-    dist_filenames: list of dimensio N_im
+    dist_filenames : list of dimension N_im
         list of filenames
     
     """
@@ -217,30 +217,30 @@ def bin_dist_values(dist_data, num_bins=10, min_value=None, max_value=None, min_
     """
     This function sorts the distortion values in dist_data["dist_values"] into discrete bins
     
-    Inputs:
-    dist_data: dict
+    Inputs :
+    dist_data : dict
         dict containing image data, labels, distortion values, and filenames
-    num_bins: integer
-        number of bins into which to sort the distortion values
-    min_value: float
-        lowest bin minimum value, with default of the minimum of the array
-    min_value: float
-        highest maximum value, with default of the maximum of the array
-    min_bin: boolean
-        boolean that determines if there is a specified bin into which all values that match min_value are placed
+    num_bins : int, optional
+        number of bins into which to sort the distortion values (default is 10)
+    min_value : float, optional
+        lowest bin minimum value (default is None, translating to minimum value of dist_value array)
+    min_value : float, optional
+        highest maximum value (default is None, translating to maximum value of dist_value array)
+    min_bin : boolean, optional
+        boolean that determines if there is a bin into which all values that match min_value are placed (default is False)
     
     Outputs:
-    dist_data: dict
+    dist_data : dict
         dict containing several arrays, as outlined below
-    dist_images: numpy float array of dimension N_im x image_width x image_height x 1
+    dist_images : numpy float array of dimension N_im x image_width x image_height x 1
         array with image GS data
-    dist_labels: numpy integer array of dimension N_im x 1
+    dist_labels : numpy integer array of dimension N_im x 1
         array with image labels, with 0 for undistorted and 1 for distored
-    dist_values: numpy float array of dimension N_im x 1
+    dist_values : numpy float array of dimension N_im x 1
         array with image distortion values
-    dist_filenames: list of dimensio N_im
+    dist_filenames : list of dimension N_im
         list of filenames
-    dist_bins: numpy integer array of dimension N_im x 1
+    dist_bins : numpy integer array of dimension N_im x 1
         array of which bin the corresponding data point falls into
     
     """
@@ -344,42 +344,42 @@ def dist_train_test_split(dist_data, split_amount=0.8, seed=42):
     """
     This function splits the data into a training set and a test set, according to the user specified train/test split amount
     
-    Inputs:
-    dist_data: dict
+    Inputs :
+    dist_data : dict
         dict containing image data, labels, distortion values, and filenames
-    split_amount: float
-        float in (0, 1) that determines the proportion of data to place into the training set (split_amount), and the proportion to place into the test set (1 - split_amount)
-    seed: int
-        random seed
+    split_amount : float, optional
+        float in (0, 1) that determines the proportion of data to place into the training set (split_amount), and the proportion to place into the test set (1 - split_amount) (Default is 0.8)
+    seed: int, optional
+        random seed (default is 42)
     
-    Outputs:
-    split_data: dict
+    Outputs :
+    split_data : dict
         dict containing several arrays, as outlined below
-    idx: numpy integer array of dimension N_im
+    idx : numpy integer array of dimension N_im
         array of permuted indicies
-    idx_train: numpy integer array of dimension split_amount * N_im (rounded to nearest integer)
+    idx_train : numpy integer array of dimension split_amount * N_im (rounded to nearest integer)
         array of permuted indices in the training set
-    idx_test: numpy integer array of dimension (1 - split_amount) * N_im (rounded to nearest integer)
+    idx_test : numpy integer array of dimension (1 - split_amount) * N_im (rounded to nearest integer)
         array of permuted indices in the test set
-    train_images: numpy float array of dimension N_im x image_width x image_height x 1
+    train_images : numpy float array of dimension N_im x image_width x image_height x 1
         array with image GS data
-    train_labels: numpy integer array of dimension N_im x 1
+    train_labels : numpy integer array of dimension N_im x 1
         array with image labels, with 0 for undistorted and 1 for distored
-    train_values: numpy float array of dimension N_im x 1
+    train_values : numpy float array of dimension N_im x 1
         array with image distortion values
-    train_filenames: list of dimensio N_im
+    train_filenames : list of dimension N_im
         list of filenames
-    train_bins: numpy integer array of dimension N_im x 1
+    train_bins : numpy integer array of dimension N_im x 1
         array of which bin the corresponding data point falls into
-    test_images: numpy float array of dimension N_im x image_width x image_height x 1
+    test_images : numpy float array of dimension N_im x image_width x image_height x 1
         array with image GS data
-    test_labels: numpy integer array of dimension N_im x 1
+    test_labels : numpy integer array of dimension N_im x 1
         array with image labels, with 0 for undistorted and 1 for distored
-    test_values: numpy float array of dimension N_im x 1
+    test_values : numpy float array of dimension N_im x 1
         array with image distortion values
-    test_filenames: list of dimensio N_im
+    test_filenames : list of dimension N_im
         list of filenames
-    test_bins: numpy integer array of dimension N_im x 1
+    test_bins : numpy integer array of dimension N_im x 1
         array of which bin the corresponding data point falls into
     
     """
@@ -458,6 +458,3 @@ def dist_train_test_split(dist_data, split_amount=0.8, seed=42):
     
     return split_data
 
-
-
-    
