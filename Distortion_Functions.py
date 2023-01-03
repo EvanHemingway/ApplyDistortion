@@ -13,10 +13,29 @@ from PIL import Image
 
 import matplotlib.pyplot as plt
 
+
 #########################
 #########################
 # Load images into arrays and create labels
 def load_distortion_data(dir_path, image_width, image_height, num_undist=0):
+    
+    """
+    This function loads data from a local directory and places the data into arrays, which are then placed into a dict
+    
+    Inputs:
+    dir_path [String]: string of the directory of the images to be loaded
+    image_width [integer]: number of pixels of image width - images with widths not matching this value will be rejected
+    image_height [integer]: number of pixels of image height - images with heights not matching this value will be rejected
+    num_undist [integer]: number of undistorted images to include - the default is to indlude all undistorted images
+    
+    Outputs:
+    dist_data [dict]: a dict containing several arrays, as outlined below
+    dist_images [numpy float array of dimension N_im x image_width x image_height x 1]: array with image GS data
+    dist_labels [numpy integer array of dimension N_im x 1]: array with image labels, with 0 for undistorted and 1 for distored
+    dist_values [numpy float array of dimension N_im x 1]: array with image distortion values
+    dist_filenames [list of dimensio N_im]: list of filenames
+        
+    """
 
     dir_path = dir_path # directory path
 
@@ -119,6 +138,24 @@ def load_distortion_data(dir_path, image_width, image_height, num_undist=0):
 # Remove specified amount of images matching specified label
 def remove_data_by_label(dist_data, rem_label, num_remove=0, seed=42):
     
+    """
+    This function removes a specified number of data points that have the specified label
+    
+    Inputs:
+    dist_data [dict]: dict containing image data, labels, distortion values, and filenames
+    rem_label [integer]: label to remove
+    num_remove [integer]: number of data points to remove
+    seed [integer]: random seed
+    
+    Outputs:
+    dist_data [dict]: a dict containing several arrays, as outlined below
+    dist_images [numpy float array of dimension N_im x image_width x image_height x 1]: array with image GS data
+    dist_labels [numpy integer array of dimension N_im x 1]: array with image labels, with 0 for undistorted and 1 for distored
+    dist_values [numpy float array of dimension N_im x 1]: array with image distortion values
+    dist_filenames [list of dimensio N_im]: list of filenames
+    
+    """
+    
     # dist_images = dist_data["dist_images"]
     # dist_labels = dist_data["dist_labels"]
     # dist_values = dist_data["dist_values"]
@@ -158,6 +195,26 @@ def remove_data_by_label(dist_data, rem_label, num_remove=0, seed=42):
 #########################
 #########################
 def bin_dist_values(dist_data, num_bins=10, min_value=None, max_value=None, min_bin=False):
+    
+    """
+    This function sorts the distortion values in dist_data["dist_values"] into discrete bins
+    
+    Inputs:
+    dist_data [dict]: dict containing image data, labels, distortion values, and filenames
+    num_bins [integer]: number of bins into which to sort the distortion values
+    min_value [float]: lowest bin minimum value, with default of the minimum of the array
+    min_value [float]: highest maximum value, with default of the maximum of the array
+    min_bin [boolean]: boolean that determines if there is a specified bin into which all values that match min_value are placed
+    
+    Outputs:
+    dist_data [dict]: a dict containing several arrays, as outlined below
+    dist_images [numpy float array of dimension N_im x image_width x image_height x 1]: array with image GS data
+    dist_labels [numpy integer array of dimension N_im x 1]: array with image labels, with 0 for undistorted and 1 for distored
+    dist_values [numpy float array of dimension N_im x 1]: array with image distortion values
+    dist_filenames [list of dimensio N_im]: list of filenames
+    dist_bins [numpy integer array of dimension N_im x 1]: array of which bin the corresponding data point falls into
+    
+    """
     
     dist_values = dist_data["dist_values"]
         
@@ -218,6 +275,7 @@ def bin_dist_values(dist_data, num_bins=10, min_value=None, max_value=None, min_
     # print(dist_values.T)
     # print(dist_value_bins.T)
 
+    # plot
     fig1 = plt.figure(figsize=(12,4))
     plt.plot(dist_values,dist_value_bins,"b.")
     plt.xlabel("Distortion coefficient value")
@@ -253,6 +311,24 @@ def bin_dist_values(dist_data, num_bins=10, min_value=None, max_value=None, min_
 #########################
 # def dist_train_test_split(dist_images, dist_labels, dist_values, dist_filenames, split_amount=0.8, seed=42):
 def dist_train_test_split(dist_data, split_amount=0.8, seed=42):
+    
+    """
+    This function splits the data into a training set and a test set, according to the user specified train/test split amount
+    
+    Inputs:
+    dist_data [dict]: dict containing image data, labels, distortion values, and filenames
+    split_amount [float]: float in (0, 1) that determines the proportion of data to place into the training set (split_amount), and the proportion to place into the test set (1 - split_amount)
+    seed [integer]: random seed
+    
+    Outputs:
+    dist_data [dict]: a dict containing several arrays, as outlined below
+    dist_images [numpy float array of dimension N_im x image_width x image_height x 1]: array with image GS data
+    dist_labels [numpy integer array of dimension N_im x 1]: array with image labels, with 0 for undistorted and 1 for distored
+    dist_values [numpy float array of dimension N_im x 1]: array with image distortion values
+    dist_filenames [list of dimensio N_im]: list of filenames
+    dist_bins [numpy integer array of dimension N_im x 1]: array of which bin the corresponding data point falls into
+    
+    """
     
     # get data from dict
     dist_images = dist_data["dist_images"]
