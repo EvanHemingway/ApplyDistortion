@@ -116,10 +116,12 @@ def load_distortion_data(dir_path, image_width, image_height, num_undist=0):
 
     # dist_values.shape
     
+    remove_idx = np.asarray(remove_idx, dtype=int)
+    
     # if there are indices to be removed
     if len(remove_idx) >= 1:
         print(remove_idx)
-        dist_images = np.delete(dist_images, remove_idx, 0)
+        dist_images = np.delete(dist_images, remove_idx, axis=0)
         dist_labels = np.delete(dist_labels, remove_idx, 0)
         dist_values = np.delete(dist_values, remove_idx, 0)
         dist_filenames = np.delete(dist_filenames, remove_idx)
